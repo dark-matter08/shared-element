@@ -34,8 +34,9 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING,
   },
   itemText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
     textTransform: 'uppercase',
+    color: 'white',
   },
 });

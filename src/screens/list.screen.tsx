@@ -4,8 +4,9 @@ import { MarketingSlider } from '../components/marketing-slider.component';
 import { DATA } from '../config/travel';
 import { SPACING } from '../config/theme';
 import { Icon } from '../components/icon.component';
+import { SharedElement } from 'react-navigation-shared-element';
 
-export const ListScreen = () => {
+export const ListScreen = ({ navigation }: { navigation: any }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <MarketingSlider />
@@ -25,8 +26,12 @@ export const ListScreen = () => {
                 padding: SPACING,
                 // backgroundColor: '#ddd',
               }}
-              onPress={() => {}}>
-              <Icon uri={item.imageUri} />
+              onPress={() => {
+                navigation.push('Details', { item });
+              }}>
+              <SharedElement id={`item.${item.id}.icon`}>
+                <Icon uri={item.imageUri} />
+              </SharedElement>
             </TouchableOpacity>
           );
         })}

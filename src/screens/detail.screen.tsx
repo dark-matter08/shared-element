@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
+  Animated,
   FlatList,
   SafeAreaView,
   ScrollView,
@@ -12,36 +13,102 @@ import { BackIcon } from '../components/back-icon.component';
 import { DATA } from '../config/travel';
 import { ICON_SIZE, SPACING, width } from '../config/theme';
 import { Icon } from '../components/icon.component';
+import { SharedElement } from 'react-navigation-shared-element';
 
-export const DetailScreen = ({ navigation }: { navigation?: any }) => {
-  const item = DATA[0];
+export const DetailScreen = ({
+  navigation,
+  route,
+}: {
+  navigation: any;
+  route: any;
+}) => {
+  const { item } = route?.params;
   const ref = useRef<any>();
   const selectedItemIndex = DATA.findIndex((i) => i.id === item.id);
-  console.log(DATA.length);
+  const mountedAnimated = useRef(new Animated.Value(0)).current;
+  const activeIndex = useRef(new Animated.Value(selectedItemIndex)).current;
+  const activeIndexAnimation = useRef(
+    new Animated.Value(selectedItemIndex)
+  ).current;
+
+  const animation = (toValue: any, delay: number) =>
+    Animated.timing(mountedAnimated, {
+      toValue,
+      duration: 500,
+      delay,
+      useNativeDriver: true,
+    });
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(activeIndexAnimation, {
+        toValue: activeIndex,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      animation(1, 500),
+    ]).start();
+  });
+
+  const size = ICON_SIZE + SPACING * 2;
+  const translateY = mountedAnimated.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 0],
+  });
+
+  const translateX = activeIndexAnimation.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [size, 0, -size],
+  });
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <BackIcon onPress={() => navigation.goBack()} />
-      <View
+      <BackIcon
+        onPress={() => {
+          animation(0, 0).start(() => {
+            navigation.goBack();
+          });
+        }}
+      />
+      <Animated.View
         style={{
           flexDirection: 'row',
           flexWrap: 'nowrap',
           marginVertical: 20,
+          marginLeft: width / 2 - ICON_SIZE / 2 - SPACING,
+          transform: [{ translateX }],
         }}>
-        {DATA.map((item) => {
+        {DATA.map((item, index) => {
+          const inputRange = [index - 1.2, index, index + 1.2];
+          const opacity = activeIndexAnimation.interpolate({
+            inputRange,
+            outputRange: [0.6, 1, 0.6],
+          });
           return (
             <TouchableOpacity
               key={item.id}
               style={{
                 padding: SPACING,
               }}
-              onPress={() => {}}>
-              <Icon uri={item.imageUri} />
+              onPress={() => {
+                activeIndex.setValue(index);
+                ref.current.scrollToIndex({
+                  index,
+                  animated: true,
+                });
+              }}>
+              <Animated.View style={{ alignItems: 'center', opacity }}>
+                <SharedElement id={`item.${item.id}.icon`}>
+                  <Icon uri={item.imageUri} />
+                </SharedElement>
+                <Text style={{ fontSize: 10 }}>{item.title}</Text>
+              </Animated.View>
             </TouchableOpacity>
           );
         })}
-      </View>
-      <FlatList
+      </Animated.View>
+      <Animated.FlatList
+        style={{ opacity: mountedAnimated, transform: [{ translateY }] }}
         ref={ref}
         data={DATA}
         keyExtractor={(item) => item.id}
@@ -49,7 +116,6 @@ export const DetailScreen = ({ navigation }: { navigation?: any }) => {
         pagingEnabled
         bounces={false}
         initialScrollIndex={selectedItemIndex}
-        style={{ flexGrow: 0, zIndex: 9999 }}
         showsHorizontalScrollIndicator={false}
         getItemLayout={(data, index) => ({
           length: width,
@@ -62,7 +128,7 @@ export const DetailScreen = ({ navigation }: { navigation?: any }) => {
               style={{
                 width: width - SPACING * 2,
                 margin: SPACING,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
                 borderRadius: 16,
               }}>
               <View style={{ padding: SPACING }}>
@@ -72,6 +138,10 @@ export const DetailScreen = ({ navigation }: { navigation?: any }) => {
               </View>
             </ScrollView>
           );
+        }}
+        onMomentumScrollEnd={(e) => {
+          const newIndex = Math.floor(e.nativeEvent.contentOffset.x / width);
+          activeIndex.setValue(newIndex);
         }}
       />
     </SafeAreaView>
