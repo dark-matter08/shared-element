@@ -17,6 +17,8 @@ export const DetailScreen = ({ navigation }: { navigation?: any }) => {
   const item = DATA[0];
   const ref = useRef<any>();
   const selectedItemIndex = DATA.findIndex((i) => i.id === item.id);
+  console.log(DATA.length);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <BackIcon onPress={() => navigation.goBack()} />
