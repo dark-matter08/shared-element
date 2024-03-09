@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { ListScreen } from './src/screens/list.screen';
 import { DetailScreen } from './src/screens/detail.screen';
 import { DATA } from './src/config/travel';
+import { HomeScreen } from './src/screens/home.screen';
 
 enableScreens();
 
@@ -14,10 +15,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="List"
+        initialRouteName="Home"
         screenOptions={{
           headerShown: false,
         }}>
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="List" component={ListScreen} />
         <Stack.Screen
           name="Details"

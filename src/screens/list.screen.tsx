@@ -5,10 +5,16 @@ import { DATA } from '../config/travel';
 import { SPACING } from '../config/theme';
 import { Icon } from '../components/icon.component';
 import { SharedElement } from 'react-navigation-shared-element';
+import { BackIcon } from '../components/back-icon.component';
 
 export const ListScreen = ({ navigation }: { navigation: any }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <BackIcon
+        onPress={() => {
+          navigation.goBack();
+        }}
+      />
       <MarketingSlider />
       <View
         style={{
