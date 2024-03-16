@@ -12,6 +12,30 @@ enableScreens();
 const Stack = createSharedElementStackNavigator();
 
 export default function App() {
+  const options: any = {
+    gestureEnabled: false,
+    transitionSpec: {
+      open: {
+        animation: 'timing',
+        config: { duration: 500, easing: Easing.inOut(Easing.ease) },
+      },
+      close: {
+        animation: 'timing',
+        config: { duration: 500, easing: Easing.inOut(Easing.ease) },
+      },
+    },
+    cardStyleInterpolator: ({
+      current: { progress },
+    }: {
+      current: { progress: number };
+    }) => {
+      return {
+        cardStyle: {
+          opacity: progress,
+        },
+      };
+    },
+  };
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -24,26 +48,15 @@ export default function App() {
         <Stack.Screen
           name="Details"
           component={DetailScreen}
-          options={{
-            gestureEnabled: false,
-            transitionSpec: {
-              open: {
-                animation: 'timing',
-                config: { duration: 500, easing: Easing.inOut(Easing.ease) },
-              },
-              close: {
-                animation: 'timing',
-                config: { duration: 500, easing: Easing.inOut(Easing.ease) },
-              },
-            },
-            cardStyleInterpolator: ({ current: { progress } }) => {
-              return {
-                cardStyle: {
-                  opacity: progress,
-                },
-              };
-            },
+          options={options}
+          sharedElements={(route, otherRoute, showing) => {
+            return DATA.map((item) => `item.${item.id}.icon`);
           }}
+        />
+        <Stack.Screen
+          name="TravelListDetails"
+          component={DetailScreen}
+          options={options}
           sharedElements={(route, otherRoute, showing) => {
             return DATA.map((item) => `item.${item.id}.icon`);
           }}
